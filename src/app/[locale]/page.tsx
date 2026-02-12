@@ -21,11 +21,13 @@ function DashboardContent() {
   const t = useTranslations('dashboard');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Welcome */}
-      <div>
-        <h1 className="text-2xl font-bold">{t('welcome')} 👋</h1>
-        <p className="text-muted text-sm mt-1">{t('overview')}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">{t('welcome')}</h1>
+          <p className="text-muted text-sm mt-1">{t('overview')}</p>
+        </div>
       </div>
 
       {/* Stats Cards */}

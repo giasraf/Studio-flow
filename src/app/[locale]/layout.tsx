@@ -1,4 +1,4 @@
-import { NextIntlClientProvider, useMessages } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales, localeDirection } from '@/i18n/config';
@@ -6,6 +6,7 @@ import type { Locale } from '@/i18n/config';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Header } from '@/components/layout/Header';
+import { ToastProvider } from '@/components/ui/Toast';
 import '@/app/globals.css';
 
 export function generateStaticParams() {
@@ -31,27 +32,35 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#09090b" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className="antialiased">
         <NextIntlClientProvider messages={messages}>
-          <div className="flex h-screen overflow-hidden">
-            {/* Desktop Sidebar */}
-            <div className="hidden md:block">
-              <Sidebar />
-            </div>
+          <ToastProvider>
+            <div className="flex h-dvh overflow-hidden">
+              {/* Desktop Sidebar */}
+              <div className="hidden md:block">
+                <Sidebar />
+              </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <Header />
-              <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
-                {children}
-              </main>
-            </div>
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <Header />
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 scroll-smooth">
+                  {children}
+                </main>
+              </div>
 
-            {/* Mobile Bottom Nav */}
-            <div className="md:hidden">
-              <MobileNav />
+              {/* Mobile Bottom Nav */}
+              <div className="md:hidden">
+                <MobileNav />
+              </div>
             </div>
-          </div>
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

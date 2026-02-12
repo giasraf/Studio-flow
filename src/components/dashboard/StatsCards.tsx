@@ -71,18 +71,18 @@ export function StatsCards() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      {cards.map((card) => {
+      {cards.map((card, index) => {
         const Icon = card.icon;
         return (
           <div
             key={card.label}
-            className={`glass rounded-2xl p-4 ${card.glowClass}`}
+            className={`glass rounded-2xl p-4 stagger-item cursor-pointer hover:scale-[1.02] transition-transform duration-200 ${card.glowClass}`}
           >
             <div className={`w-10 h-10 rounded-xl ${card.bgColor} flex items-center justify-center mb-3`}>
               <Icon className={`w-5 h-5 ${card.color}`} />
             </div>
-            <p className="text-xl font-bold">{card.value}</p>
-            <p className="text-xs text-muted mt-1">{card.label}</p>
+            <p className="text-xl font-bold tracking-tight">{card.value}</p>
+            <p className="text-xs text-muted mt-1 leading-relaxed">{card.label}</p>
           </div>
         );
       })}

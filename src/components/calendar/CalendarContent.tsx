@@ -91,15 +91,21 @@ export function CalendarContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar Grid */}
         <div className="lg:col-span-2 glass rounded-2xl p-6">
-          {/* Month navigation */}
+          {/* Month navigation - arrows follow logical direction (ChevronRight=forward, ChevronLeft=back) */}
           <div className="flex items-center justify-between mb-6">
-            <button onClick={prevMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
+            <button onClick={nextMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
               <ChevronRight className="w-5 h-5" />
             </button>
-            <h2 className="text-lg font-semibold">
-              {months[month]} {year}
-            </h2>
-            <button onClick={nextMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold">{months[month]} {year}</h2>
+              <button
+                onClick={() => setCurrentDate(new Date(2026, 1, 11))}
+                className="text-xs text-accent hover:text-accent-hover transition-colors mt-0.5"
+              >
+                {t('calendar.today')}
+              </button>
+            </div>
+            <button onClick={prevMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
               <ChevronLeft className="w-5 h-5" />
             </button>
           </div>
