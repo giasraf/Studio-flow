@@ -1,0 +1,411 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USERS ====================
+
+enum UserRole {
+  PRODUCER
+  CLIENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phone         String?
+  name          String
+  avatar        String?
+  role          UserRole
+  locale        String    @default("he")
+  googleTokens  Json?     // Google Calendar OAuth tokens
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Producer relations
+  clients       Client[]       @relation("ProducerClients")
+
+  // Client relations
+  clientProfile Client?        @relation("ClientUser")
+
+  sessions      Session[]      @relation("SessionProducer")
+  notifications Notification[] @relation("UserNotifications")
+
+  @@map("users")
+}
+
+// ==================== CLIENTS ====================
+
+model Client {
+  id          String   @id @default(cuid())
+  producerId  String
+  producer    User     @relation("ProducerClients", fields: [producerId], references: [id])
+  userId      String?  @unique
+  user        User?    @relation("ClientUser", fields: [userId], references: [id])
+
+  name        String
+  email       String
+  phone       String?
+  avatar      String?
+  notes       String?
+
+  // CRM fields
+  source       String?  // How client was referred
+  totalPaid    Float    @default(0)
+  totalOwed    Float    @default(0)
+
+  projects    Project[]
+  payments    Payment[]
+  contracts   Contract[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("clients")
+}
+
+// ==================== PROJECTS & SONGS ====================
+
+enum ProjectType {
+  SINGLE
+  ALBUM
+  EP
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+
+  name        String
+  type        ProjectType   @default(SINGLE)
+  status      ProjectStatus @default(DRAFT)
+
+  totalPrice  Float         @default(0)
+  notes       String?
+
+  songs       Song[]
+  payments    Payment[]
+  contracts   Contract[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("projects")
+}
+
+enum SongStage {
+  SKETCH          // סקיצה ראשונית
+  PRODUCTION      // הפקה מלאה
+  RECORDING       // הקלטת קולות
+  EDITING         // עריכת קולות
+  MIXING          // מיקס
+  MIX_REVISIONS   // תיקוני מיקס
+  MASTERING       // מאסטרינג
+  DELIVERED       // נמסר
+}
+
+model Song {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+
+  title       String
+  stage       SongStage @default(SKETCH)
+  bpm         Int?
+  key         String?   // Musical key
+  genre       String?
+  reference   String?   // Reference track URL or name
+  lyrics      String?
+  notes       String?
+
+  // Auto-calculated
+  sessionCount Int      @default(0)
+
+  sessions    Session[]
+  files       SongFile[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("songs")
+}
+
+// ==================== SESSIONS ====================
+
+enum SessionType {
+  SKETCH          // סשן סקיצה
+  PRODUCTION      // סשן הפקה
+  RECORDING       // סשן הקלטה
+  EDITING         // עריכה (מפיק לבד)
+  MIXING          // מיקס
+  MIX_REVISION    // תיקוני מיקס
+  MASTERING       // מאסטרינג
+  CONSULTATION    // ייעוץ
+}
+
+enum SessionStatus {
+  PENDING         // ממתין לאישור
+  CONFIRMED       // מאושר
+  IN_PROGRESS     // מתקיים עכשיו
+  COMPLETED       // הסתיים
+  CANCELLED       // בוטל
+  NO_SHOW         // לא הגיע
+}
+
+model Session {
+  id              String        @id @default(cuid())
+  producerId      String
+  producer        User          @relation("SessionProducer", fields: [producerId], references: [id])
+  songId          String?
+  song            Song?         @relation(fields: [songId], references: [id])
+
+  type            SessionType
+  status          SessionStatus @default(PENDING)
+
+  title           String
+  description     String?
+
+  startTime       DateTime
+  endTime         DateTime
+  duration        Int           // Duration in minutes
+
+  // Google Calendar sync
+  googleEventId   String?
+
+  // Producer-only session (no client present)
+  isProducerOnly  Boolean       @default(false)
+
+  notes           String?       // Post-session notes
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("sessions")
+}
+
+// ==================== PAYMENTS ====================
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentType {
+  ADVANCE       // מקדמה
+  INSTALLMENT   // תשלום
+  FINAL         // תשלום סופי
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id])
+
+  amount          Float
+  type            PaymentType
+  status          PaymentStatus @default(PENDING)
+
+  dueDate         DateTime
+  paidAt          DateTime?
+
+  // Payment provider reference
+  transactionId   String?
+
+  // Accounting integration (Green Invoice / Morning)
+  invoiceId       String?
+  receiptId       String?
+
+  installmentNum  Int?          // 1, 2, 3... for installment tracking
+  totalInstallments Int?        // Total installments in plan
+
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+// ==================== FILES ====================
+
+enum FileType {
+  SKETCH
+  PRODUCTION
+  VOCAL_RAW
+  VOCAL_EDITED
+  MIX
+  MIX_REVISION
+  MASTER
+  REFERENCE
+  OTHER
+}
+
+model SongFile {
+  id          String    @id @default(cuid())
+  songId      String
+  song        Song      @relation(fields: [songId], references: [id])
+
+  name        String
+  type        FileType
+  url         String
+  size        Int       // File size in bytes
+  duration    Float?    // Audio duration in seconds
+  version     Int       @default(1)
+
+  // Waveform data for visualization
+  waveformData Json?
+
+  comments    FileComment[]
+
+  isActive    Boolean   @default(true) // Current version flag
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("song_files")
+}
+
+model FileComment {
+  id          String   @id @default(cuid())
+  fileId      String
+  file        SongFile @relation(fields: [fileId], references: [id])
+  authorName  String
+
+  content     String
+  timestamp   Float?   // Timestamp in seconds (for audio comments)
+
+  resolved    Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("file_comments")
+}
+
+// ==================== CONTRACTS ====================
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  SIGNED
+  EXPIRED
+  CANCELLED
+}
+
+model Contract {
+  id              String         @id @default(cuid())
+  clientId        String
+  client          Client         @relation(fields: [clientId], references: [id])
+  projectId       String
+  project         Project        @relation(fields: [projectId], references: [id])
+
+  title           String
+  content         String         // Contract body (HTML/Markdown)
+
+  totalPrice      Float
+  paymentPlan     Json           // Payment schedule details
+  maxRevisions    Int            @default(3)
+
+  status          ContractStatus @default(DRAFT)
+
+  signedAt        DateTime?
+  signatureData   String?        // Digital signature
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("contracts")
+}
+
+// ==================== NOTIFICATIONS ====================
+
+enum NotificationType {
+  SESSION_REMINDER
+  SESSION_BOOKED
+  SESSION_CANCELLED
+  PAYMENT_DUE
+  PAYMENT_RECEIVED
+  FILE_UPLOADED
+  COMMENT_ADDED
+  CONTRACT_SENT
+  CONTRACT_SIGNED
+  FOLLOW_UP
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  WHATSAPP
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  userId      String
+  user        User                @relation("UserNotifications", fields: [userId], references: [id])
+
+  type        NotificationType
+  channel     NotificationChannel @default(IN_APP)
+  title       String
+  body        String
+  link        String?
+
+  read        Boolean             @default(false)
+  sentAt      DateTime?
+
+  createdAt   DateTime            @default(now())
+
+  @@map("notifications")
+}
+
+// ==================== PRODUCER SETTINGS ====================
+
+model ProducerSettings {
+  id                  String   @id @default(cuid())
+  producerId          String   @unique
+
+  // Working hours
+  workingDays         Json     @default("[1,2,3,4,5]") // 0=Sunday
+  workStartTime       String   @default("10:00")
+  workEndTime         String   @default("22:00")
+  sessionDuration     Int      @default(180) // Default session duration in minutes
+  breakBetweenSessions Int     @default(30) // Minutes between sessions
+
+  // Booking settings
+  allowClientBooking  Boolean  @default(true)
+  bookingAdvanceDays  Int      @default(30) // How far ahead clients can book
+  cancellationHours   Int      @default(24) // Min hours before session to cancel
+
+  // Auto follow-up
+  autoFollowUpEnabled Boolean  @default(true)
+  followUpDays        Int      @default(7) // Days after last session
+
+  // Default pricing
+  defaultSongPrice    Float?
+  currency            String   @default("ILS")
+
+  // Contract template
+  defaultContractTemplate String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("producer_settings")
+}
