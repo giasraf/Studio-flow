@@ -12,7 +12,6 @@ import {
   MessageSquare,
   Send,
   Check,
-  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +19,7 @@ interface Comment {
   id: string;
   author: string;
   content: string;
-  timestamp: number; // seconds
+  timestamp: number;
   resolved: boolean;
   createdAt: string;
 }
@@ -29,7 +28,7 @@ interface AudioPlayerProps {
   title: string;
   artist?: string;
   version?: number;
-  duration?: number; // seconds
+  duration?: number;
 }
 
 const mockComments: Comment[] = [
@@ -89,7 +88,6 @@ export function AudioPlayer({
   const [hoveredComment, setHoveredComment] = useState<string | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  // Simulate playback
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
@@ -133,7 +131,6 @@ export function AudioPlayer({
     );
   };
 
-  // Generate waveform bars
   const waveformBars = Array.from({ length: 100 }, (_, i) => {
     const seed = Math.sin(i * 0.5) * 0.5 + Math.sin(i * 0.3) * 0.3 + Math.sin(i * 0.7) * 0.2;
     return 20 + Math.abs(seed) * 80;
@@ -142,35 +139,29 @@ export function AudioPlayer({
   const progress = (currentTime / duration) * 100;
 
   return (
-    <div className="glass rounded-2xl overflow-hidden">
+    <div className="bg-background border border-border rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="p-5 border-b border-border">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-lg">{title}</h3>
-            <p className="text-sm text-muted">
-              {artist} • {t('files.version')} {version}
+            <h3 className="font-semibold text-[15px]">{title}</h3>
+            <p className="text-[12px] text-muted">
+              {artist} · {t('files.version')} {version}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded-lg">
-              {t('files.typeLabels.MIX')}
-            </span>
-            <span className="text-xs text-muted">
-              {comments.filter((c) => !c.resolved).length} {t('files.comments')}
-            </span>
-          </div>
+          <span className="text-[11px] text-muted">
+            {comments.filter((c) => !c.resolved).length} {t('files.comments')}
+          </span>
         </div>
       </div>
 
       {/* Waveform */}
-      <div className="px-5 py-4">
+      <div className="px-4 py-4">
         <div
           ref={progressRef}
-          className="relative h-24 cursor-pointer waveform-container"
+          className="relative h-20 cursor-pointer"
           onClick={handleProgressClick}
         >
-          {/* Waveform bars */}
           <div className="flex items-center h-full gap-[2px]">
             {waveformBars.map((height, i) => {
               const barProgress = (i / waveformBars.length) * 100;
@@ -180,7 +171,7 @@ export function AudioPlayer({
                   key={i}
                   className={cn(
                     'flex-1 rounded-full transition-colors duration-100',
-                    isPast ? 'bg-accent' : 'bg-border'
+                    isPast ? 'bg-foreground' : 'bg-border'
                   )}
                   style={{ height: `${height}%` }}
                 />
@@ -202,22 +193,21 @@ export function AudioPlayer({
                 <div
                   className={cn(
                     'w-0.5 h-full',
-                    comment.resolved ? 'bg-success/50' : 'bg-warning/70'
+                    comment.resolved ? 'bg-green-400/50' : 'bg-amber-400/70'
                   )}
                 />
                 <div
                   className={cn(
-                    'absolute -top-1 w-3 h-3 rounded-full border-2 border-background',
-                    comment.resolved ? 'bg-success' : 'bg-warning'
+                    'absolute -top-1 w-2.5 h-2.5 rounded-full border-2 border-background',
+                    comment.resolved ? 'bg-green-500' : 'bg-amber-500'
                   )}
                 />
 
-                {/* Tooltip */}
                 {hoveredComment === comment.id && (
-                  <div className="absolute top-full mt-2 bg-surface border border-border rounded-xl p-3 shadow-xl z-50 w-48 animate-fade-in">
-                    <p className="text-xs font-medium">{comment.author}</p>
-                    <p className="text-xs text-muted mt-1">{comment.content}</p>
-                    <p className="text-[10px] text-muted mt-2">
+                  <div className="absolute top-full mt-2 bg-background border border-border rounded-lg p-2.5 shadow-lg z-50 w-44 animate-fade-in">
+                    <p className="text-[11px] font-medium">{comment.author}</p>
+                    <p className="text-[11px] text-muted mt-0.5">{comment.content}</p>
+                    <p className="text-[10px] text-muted mt-1.5">
                       {formatTimestamp(comment.timestamp)}
                     </p>
                   </div>
@@ -233,64 +223,63 @@ export function AudioPlayer({
           />
         </div>
 
-        {/* Time display */}
-        <div className="flex items-center justify-between text-xs text-muted mt-2">
+        <div className="flex items-center justify-between text-[11px] text-muted mt-2">
           <span>{formatTimestamp(currentTime)}</span>
           <span>{formatTimestamp(duration)}</span>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="px-5 pb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="px-4 pb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrentTime(Math.max(0, currentTime - 10))}
-            className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
           >
-            <SkipBack className="w-4 h-4" />
+            <SkipBack className="w-3.5 h-3.5" />
           </button>
 
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-12 h-12 rounded-full bg-accent hover:bg-accent-hover flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-full bg-foreground hover:bg-foreground/90 flex items-center justify-center transition-colors"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 text-white" />
+              <Pause className="w-4 h-4 text-background" />
             ) : (
-              <Play className="w-5 h-5 text-white ms-0.5" />
+              <Play className="w-4 h-4 text-background ms-0.5" />
             )}
           </button>
 
           <button
             onClick={() => setCurrentTime(Math.min(duration, currentTime + 10))}
-            className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
           >
-            <SkipForward className="w-4 h-4" />
+            <SkipForward className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className="p-2 rounded-xl hover:bg-surface-hover transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors"
           >
             {isMuted ? (
-              <VolumeX className="w-4 h-4 text-muted" />
+              <VolumeX className="w-3.5 h-3.5 text-muted" />
             ) : (
-              <Volume2 className="w-4 h-4" />
+              <Volume2 className="w-3.5 h-3.5" />
             )}
           </button>
 
           <button
             onClick={() => setShowCommentInput(!showCommentInput)}
             className={cn(
-              'flex items-center gap-1 px-3 py-2 rounded-xl text-sm transition-colors',
+              'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors',
               showCommentInput
-                ? 'bg-accent/15 text-accent'
-                : 'bg-surface border border-border hover:bg-surface-hover'
+                ? 'bg-foreground text-background'
+                : 'border border-border hover:bg-surface-hover'
             )}
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-3.5 h-3.5" />
             {t('files.addComment')}
           </button>
         </div>
@@ -298,9 +287,9 @@ export function AudioPlayer({
 
       {/* Comment Input */}
       {showCommentInput && (
-        <div className="px-5 pb-4 animate-fade-in">
+        <div className="px-4 pb-4 animate-fade-in">
           <div className="flex gap-2">
-            <div className="text-xs text-accent bg-accent/10 px-2 py-1 rounded-lg whitespace-nowrap">
+            <div className="text-[11px] text-muted bg-surface-hover px-2 py-1.5 rounded-lg whitespace-nowrap font-mono">
               {formatTimestamp(currentTime)}
             </div>
             <input
@@ -309,14 +298,14 @@ export function AudioPlayer({
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
               placeholder={t('files.addComment') + '...'}
-              className="flex-1 bg-background border border-border rounded-xl px-3 py-2 text-sm placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+              className="flex-1 bg-background border border-border rounded-lg px-3 py-1.5 text-[13px] placeholder:text-muted focus:outline-none focus:border-foreground transition-colors"
               autoFocus
             />
             <button
               onClick={handleAddComment}
-              className="p-2 bg-accent hover:bg-accent-hover rounded-xl transition-colors"
+              className="p-1.5 bg-foreground hover:bg-foreground/90 rounded-lg transition-colors"
             >
-              <Send className="w-4 h-4 text-white" />
+              <Send className="w-3.5 h-3.5 text-background" />
             </button>
           </div>
         </div>
@@ -324,11 +313,11 @@ export function AudioPlayer({
 
       {/* Comments List */}
       <div className="border-t border-border">
-        <div className="p-5">
-          <h4 className="text-sm font-semibold mb-3">
+        <div className="p-4">
+          <h4 className="text-[13px] font-medium mb-2.5">
             {t('files.comments')} ({comments.length})
           </h4>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="space-y-1.5 max-h-56 overflow-y-auto">
             {comments
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((comment) => (
@@ -336,26 +325,26 @@ export function AudioPlayer({
                   key={comment.id}
                   onClick={() => setCurrentTime(comment.timestamp)}
                   className={cn(
-                    'flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors',
+                    'flex items-start gap-2.5 p-2.5 rounded-lg cursor-pointer transition-colors',
                     comment.resolved
-                      ? 'bg-surface/50 opacity-60'
-                      : 'bg-background/50 hover:bg-surface-hover'
+                      ? 'opacity-50'
+                      : 'hover:bg-surface'
                   )}
                 >
-                  <span className="text-xs font-mono bg-accent/10 text-accent px-2 py-1 rounded-lg whitespace-nowrap">
+                  <span className="text-[11px] font-mono text-muted bg-surface-hover px-1.5 py-0.5 rounded whitespace-nowrap">
                     {formatTimestamp(comment.timestamp)}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium">{comment.author}</span>
+                      <span className="text-[12px] font-medium">{comment.author}</span>
                       {comment.resolved && (
-                        <span className="text-[10px] text-success flex items-center gap-0.5">
+                        <span className="text-[10px] text-green-600 flex items-center gap-0.5">
                           <Check className="w-3 h-3" />
                           {t('files.resolved')}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-muted mt-0.5">{comment.content}</p>
+                    <p className="text-[12px] text-muted mt-0.5">{comment.content}</p>
                   </div>
                   <button
                     onClick={(e) => {
@@ -365,11 +354,11 @@ export function AudioPlayer({
                     className={cn(
                       'p-1 rounded-lg transition-colors flex-shrink-0',
                       comment.resolved
-                        ? 'text-success hover:bg-success/10'
+                        ? 'text-green-600 hover:bg-green-50'
                         : 'text-muted hover:bg-surface-hover'
                     )}
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
