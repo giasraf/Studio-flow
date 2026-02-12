@@ -2,12 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
-import { mockStats } from '@/lib/mock-data';
+import { useStats } from '@/hooks/useStore';
 import { formatCurrency } from '@/lib/utils';
 
 export function RevenueOverview() {
   const t = useTranslations('dashboard');
-  const stats = mockStats;
+  const stats = useStats();
 
   const revenueItems = [
     {

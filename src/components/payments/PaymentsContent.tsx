@@ -12,7 +12,8 @@ import {
   Filter,
   TrendingUp,
 } from 'lucide-react';
-import { mockPayments, mockStats } from '@/lib/mock-data';
+import { usePayments } from '@/hooks/useStore';
+import { markPaymentPaid } from '@/lib/store';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 
 type FilterStatus = 'all' | 'PENDING' | 'PAID' | 'OVERDUE';
@@ -21,20 +22,21 @@ export function PaymentsContent() {
   const t = useTranslations();
   const locale = useLocale();
   const [filter, setFilter] = useState<FilterStatus>('all');
+  const payments = usePayments();
 
   const filtered = filter === 'all'
-    ? mockPayments
-    : mockPayments.filter((p) => p.status === filter);
+    ? payments
+    : payments.filter((p) => p.status === filter);
 
-  const totalPaid = mockPayments
+  const totalPaid = payments
     .filter((p) => p.status === 'PAID')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const totalPending = mockPayments
+  const totalPending = payments
     .filter((p) => p.status === 'PENDING')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const totalOverdue = mockPayments
+  const totalOverdue = payments
     .filter((p) => p.status === 'OVERDUE')
     .reduce((sum, p) => sum + p.amount, 0);
 
@@ -158,7 +160,10 @@ export function PaymentsContent() {
                 <td className="p-4">
                   {payment.status !== 'PAID' && (
                     <div className="flex gap-2">
-                      <button className="text-xs bg-accent hover:bg-accent-hover text-white px-3 py-1.5 rounded-lg transition-colors">
+                      <button
+                        onClick={() => markPaymentPaid(payment.id)}
+                        className="text-xs bg-accent hover:bg-accent-hover text-white px-3 py-1.5 rounded-lg transition-colors"
+                      >
                         {t('payments.markAsPaid')}
                       </button>
                       <button className="text-xs border border-border hover:bg-surface-hover px-3 py-1.5 rounded-lg transition-colors">

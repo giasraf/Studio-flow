@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { Calendar, Clock, User, Headphones, ChevronLeft, ChevronRight } from 'lucide-react';
-import { mockSessions } from '@/lib/mock-data';
+import { useSessions } from '@/hooks/useStore';
 import { formatDate, formatTime, cn } from '@/lib/utils';
 
 const sessionTypeColors: Record<string, string> = {
@@ -18,8 +18,9 @@ const sessionTypeColors: Record<string, string> = {
 export function UpcomingSessions() {
   const t = useTranslations();
   const locale = useLocale();
+  const sessions = useSessions();
 
-  const upcomingSessions = mockSessions
+  const upcomingSessions = sessions
     .filter((s) => s.status !== 'CANCELLED')
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 

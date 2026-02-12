@@ -16,8 +16,10 @@ import {
   Filter,
   ArrowUpDown,
 } from 'lucide-react';
-import { mockClients, mockSongs, mockPayments } from '@/lib/mock-data';
+import { useClients, useSongs, usePayments } from '@/hooks/useStore';
+import { addClient } from '@/lib/store';
 import { formatCurrency, formatDate, getInitials, cn } from '@/lib/utils';
+import { Modal } from '@/components/ui/Modal';
 
 type SortBy = 'name' | 'totalPaid' | 'totalOwed' | 'lastSession';
 type FilterBy = 'all' | 'active' | 'owes' | 'needsFollowUp';
@@ -29,8 +31,21 @@ export function ClientsContent() {
   const [sortBy, setSortBy] = useState<SortBy>('name');
   const [filterBy, setFilterBy] = useState<FilterBy>('all');
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', source: '' });
 
-  const filteredClients = mockClients
+  const clients = useClients();
+  const songs = useSongs();
+  const payments = usePayments();
+
+  const handleAddClient = () => {
+    if (!newClient.name || !newClient.email) return;
+    addClient(newClient);
+    setNewClient({ name: '', email: '', phone: '', source: '' });
+    setShowAddModal(false);
+  };
+
+  const filteredClients = clients
     .filter((client) => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -74,15 +89,15 @@ export function ClientsContent() {
     });
 
   const selected = selectedClient
-    ? mockClients.find((c) => c.id === selectedClient)
+    ? clients.find((c) => c.id === selectedClient)
     : null;
 
   const clientSongs = selected
-    ? mockSongs.filter((s) => s.clientId === selected.id)
+    ? songs.filter((s) => s.clientId === selected.id)
     : [];
 
   const clientPayments = selected
-    ? mockPayments.filter((p) => p.clientId === selected.id)
+    ? payments.filter((p) => p.clientId === selected.id)
     : [];
 
   return (
@@ -95,10 +110,13 @@ export function ClientsContent() {
             {t('clients.title')}
           </h1>
           <p className="text-sm text-muted mt-1">
-            {mockClients.length} {t('clients.title')}
+            {clients.length} {t('clients.title')}
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
+        >
           <Plus className="w-4 h-4" />
           {t('clients.addClient')}
         </button>
@@ -317,6 +335,59 @@ export function ClientsContent() {
           )}
         </div>
       </div>
+
+      {/* Add Client Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title={t('clients.addClient')}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{t('common.name')}</label>
+            <input
+              type="text"
+              value={newClient.name}
+              onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              placeholder={locale === 'he' ? 'שם מלא' : 'Full name'}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{t('common.email')}</label>
+            <input
+              type="email"
+              value={newClient.email}
+              onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              placeholder="email@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{t('common.phone')}</label>
+            <input
+              type="tel"
+              value={newClient.phone}
+              onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              placeholder="054-1234567"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{locale === 'he' ? 'מקור' : 'Source'}</label>
+            <input
+              type="text"
+              value={newClient.source}
+              onChange={(e) => setNewClient({ ...newClient, source: e.target.value })}
+              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              placeholder={locale === 'he' ? 'המלצה, אינסטגרם...' : 'Referral, Instagram...'}
+            />
+          </div>
+          <button
+            onClick={handleAddClient}
+            disabled={!newClient.name || !newClient.email}
+            className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl py-2.5 text-sm font-medium transition-colors"
+          >
+            {t('clients.addClient')}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

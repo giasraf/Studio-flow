@@ -12,7 +12,8 @@ import {
   Headphones,
   X,
 } from 'lucide-react';
-import { mockSessions, mockClients, mockSongs } from '@/lib/mock-data';
+import { useSessions, useClients, useSongs } from '@/hooks/useStore';
+import { addSession } from '@/lib/store';
 import { formatTime, cn } from '@/lib/utils';
 
 const DAYS_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
@@ -37,6 +38,45 @@ export function CalendarContent() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 11)); // Feb 2026
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [bookingType, setBookingType] = useState('');
+  const [bookingClientId, setBookingClientId] = useState('');
+  const [bookingSongId, setBookingSongId] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingTime, setBookingTime] = useState('10:00');
+  const [bookingDuration, setBookingDuration] = useState('180');
+
+  const sessions = useSessions();
+  const clients = useClients();
+  const allSongs = useSongs();
+
+  const handleBookSession = () => {
+    if (!bookingType || !bookingDate || !bookingTime) return;
+    const client = clients.find((c) => c.id === bookingClientId);
+    const song = allSongs.find((s) => s.id === bookingSongId);
+    const dur = parseInt(bookingDuration);
+    const startTime = `${bookingDate}T${bookingTime}:00`;
+    const endHour = parseInt(bookingTime.split(':')[0]) + Math.floor(dur / 60);
+    const endMin = parseInt(bookingTime.split(':')[1]) + (dur % 60);
+    const endTime = `${bookingDate}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`;
+    const stageLabel = bookingType.charAt(0) + bookingType.slice(1).toLowerCase();
+    addSession({
+      songId: bookingSongId || undefined,
+      songTitle: song?.title || '',
+      clientName: client?.name || '',
+      type: bookingType,
+      title: `${stageLabel} - ${song?.title || client?.name || ''}`,
+      startTime,
+      endTime,
+      duration: dur,
+      isProducerOnly: !bookingClientId,
+    });
+    setBookingType('');
+    setBookingClientId('');
+    setBookingSongId('');
+    setBookingDate('');
+    setBookingTime('10:00');
+    setBookingDuration('180');
+  };
 
   const days = locale === 'he' ? DAYS_HE : DAYS_EN;
   const months = locale === 'he' ? MONTHS_HE : MONTHS_EN;
@@ -56,15 +96,15 @@ export function CalendarContent() {
 
   const getSessionsForDay = (day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return mockSessions.filter((s) => s.startTime.startsWith(dateStr));
+    return sessions.filter((s) => s.startTime.startsWith(dateStr));
   };
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
   const todaySessions = selectedDate
-    ? mockSessions.filter((s) => s.startTime.startsWith(selectedDate))
-    : mockSessions.filter((s) => {
+    ? sessions.filter((s) => s.startTime.startsWith(selectedDate))
+    : sessions.filter((s) => {
         const today = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
         return s.startTime.startsWith(today);
       });
@@ -226,7 +266,11 @@ export function CalendarContent() {
           <div className="glass rounded-2xl p-6">
             <h3 className="font-semibold mb-4">{t('calendar.bookSession')}</h3>
             <div className="space-y-3">
-              <select className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors">
+              <select
+                value={bookingType}
+                onChange={(e) => setBookingType(e.target.value)}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              >
                 <option value="">{t('calendar.sessionType')}</option>
                 <option value="SKETCH">{t('calendar.sessionTypes.SKETCH')}</option>
                 <option value="PRODUCTION">{t('calendar.sessionTypes.PRODUCTION')}</option>
@@ -235,39 +279,58 @@ export function CalendarContent() {
                 <option value="MASTERING">{t('calendar.sessionTypes.MASTERING')}</option>
               </select>
 
-              <select className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors">
+              <select
+                value={bookingClientId}
+                onChange={(e) => setBookingClientId(e.target.value)}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              >
                 <option value="">{t('clients.title')}</option>
-                {mockClients.map((c) => (
+                {clients.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
 
-              <select className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors">
+              <select
+                value={bookingSongId}
+                onChange={(e) => setBookingSongId(e.target.value)}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+              >
                 <option value="">{t('projects.songs')}</option>
-                {mockSongs.map((s) => (
+                {allSongs.map((s) => (
                   <option key={s.id} value={s.id}>{s.title} - {s.clientName}</option>
                 ))}
               </select>
 
               <input
                 type="date"
+                value={bookingDate}
+                onChange={(e) => setBookingDate(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
               />
 
               <div className="flex gap-2">
                 <input
                   type="time"
-                  defaultValue="10:00"
+                  value={bookingTime}
+                  onChange={(e) => setBookingTime(e.target.value)}
                   className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
-                <select className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors">
+                <select
+                  value={bookingDuration}
+                  onChange={(e) => setBookingDuration(e.target.value)}
+                  className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                >
                   <option value="120">2 {t('calendar.hours')}</option>
                   <option value="180">3 {t('calendar.hours')}</option>
                   <option value="240">4 {t('calendar.hours')}</option>
                 </select>
               </div>
 
-              <button className="w-full bg-accent hover:bg-accent-hover text-white rounded-xl py-2.5 text-sm font-medium transition-colors">
+              <button
+                onClick={handleBookSession}
+                disabled={!bookingType || !bookingDate}
+                className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl py-2.5 text-sm font-medium transition-colors"
+              >
                 {t('calendar.bookSession')}
               </button>
             </div>

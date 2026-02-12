@@ -12,8 +12,10 @@ import {
   List,
   LayoutGrid,
 } from 'lucide-react';
-import { mockSongs, songStages, stageLabels } from '@/lib/mock-data';
+import { songStages, stageLabels } from '@/lib/mock-data';
 import type { SongStage } from '@/lib/mock-data';
+import { useSongs } from '@/hooks/useStore';
+import { updateSongStage } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 const stageColors: Record<string, string> = {
@@ -53,13 +55,14 @@ export function PipelineContent() {
   const t = useTranslations();
   const locale = useLocale();
   const [view, setView] = useState<'pipeline' | 'list'>('pipeline');
+  const allSongs = useSongs();
 
   const songsByStage = songStages.reduce(
     (acc, stage) => {
-      acc[stage] = mockSongs.filter((s) => s.stage === stage);
+      acc[stage] = allSongs.filter((s) => s.stage === stage);
       return acc;
     },
-    {} as Record<SongStage, typeof mockSongs>
+    {} as Record<SongStage, typeof allSongs>
   );
 
   return (
@@ -199,7 +202,7 @@ export function PipelineContent() {
               </tr>
             </thead>
             <tbody>
-              {mockSongs.map((song) => (
+              {allSongs.map((song) => (
                 <tr
                   key={song.id}
                   className="border-b border-border hover:bg-surface-hover cursor-pointer transition-colors"

@@ -2,7 +2,8 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { Music, User, Clock } from 'lucide-react';
-import { mockSongs, stageLabels } from '@/lib/mock-data';
+import { stageLabels } from '@/lib/mock-data';
+import { useSongs } from '@/hooks/useStore';
 import { getStageColor, formatDate, cn } from '@/lib/utils';
 import type { SongStage } from '@/lib/mock-data';
 
@@ -14,8 +15,9 @@ const stageOrder: SongStage[] = [
 export function ActiveSongs() {
   const t = useTranslations();
   const locale = useLocale();
+  const songs = useSongs();
 
-  const activeSongs = mockSongs
+  const activeSongs = songs
     .filter((s) => s.stage !== 'DELIVERED')
     .sort((a, b) => stageOrder.indexOf(b.stage) - stageOrder.indexOf(a.stage));
 

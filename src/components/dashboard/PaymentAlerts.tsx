@@ -2,14 +2,16 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { CreditCard, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
-import { mockPayments } from '@/lib/mock-data';
+import { usePayments } from '@/hooks/useStore';
+import { markPaymentPaid } from '@/lib/store';
 import { formatCurrency, formatDate, getPaymentStatusColor, cn } from '@/lib/utils';
 
 export function PaymentAlerts() {
   const t = useTranslations('payments');
   const locale = useLocale();
+  const payments = usePayments();
 
-  const pendingPayments = mockPayments.filter(
+  const pendingPayments = payments.filter(
     (p) => p.status === 'PENDING' || p.status === 'OVERDUE'
   );
 
@@ -56,7 +58,10 @@ export function PaymentAlerts() {
             )}
 
             <div className="flex gap-2 mt-3">
-              <button className="flex-1 text-xs bg-accent hover:bg-accent-hover text-white rounded-lg py-1.5 transition-colors">
+              <button
+                onClick={() => markPaymentPaid(payment.id)}
+                className="flex-1 text-xs bg-accent hover:bg-accent-hover text-white rounded-lg py-1.5 transition-colors"
+              >
                 {t('markAsPaid')}
               </button>
               <button className="flex-1 text-xs border border-border hover:bg-surface-hover rounded-lg py-1.5 transition-colors">

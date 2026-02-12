@@ -11,12 +11,12 @@ import {
   AlertCircle,
   CheckCircle,
 } from 'lucide-react';
-import { mockStats } from '@/lib/mock-data';
+import { useStats } from '@/hooks/useStore';
 import { formatCurrency } from '@/lib/utils';
 
 export function StatsCards() {
   const t = useTranslations('dashboard');
-  const stats = mockStats;
+  const stats = useStats();
 
   const cards = [
     {
