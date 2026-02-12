@@ -18,6 +18,9 @@
     "next": "Next",
     "previous": "Previous",
     "viewAll": "View All",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
     "noResults": "No results found",
     "currency": "₪"
   },

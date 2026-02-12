@@ -3,14 +3,12 @@
 import { useState, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import {
-  Calendar,
   Clock,
   Plus,
   ChevronLeft,
   ChevronRight,
   User,
   Headphones,
-  X,
 } from 'lucide-react';
 import { useSessions, useClients, useSongs } from '@/hooks/useStore';
 import { addSession } from '@/lib/store';
@@ -21,15 +19,28 @@ const DAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS_HE = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const sessionTypeColors: Record<string, string> = {
-  SKETCH: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  PRODUCTION: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  RECORDING: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  EDITING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  MIXING: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-  MIX_REVISION: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
-  MASTERING: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-  CONSULTATION: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+// Subtle dot colors for session types
+const sessionTypeDotColors: Record<string, string> = {
+  SKETCH: 'bg-purple-500',
+  PRODUCTION: 'bg-blue-500',
+  RECORDING: 'bg-orange-500',
+  EDITING: 'bg-yellow-500',
+  MIXING: 'bg-cyan-500',
+  MIX_REVISION: 'bg-teal-500',
+  MASTERING: 'bg-pink-500',
+  CONSULTATION: 'bg-gray-500',
+};
+
+// Very subtle tints for session cards
+const sessionTypeCardColors: Record<string, string> = {
+  SKETCH: 'bg-purple-50 border-purple-200',
+  PRODUCTION: 'bg-blue-50 border-blue-200',
+  RECORDING: 'bg-orange-50 border-orange-200',
+  EDITING: 'bg-yellow-50 border-yellow-200',
+  MIXING: 'bg-cyan-50 border-cyan-200',
+  MIX_REVISION: 'bg-teal-50 border-teal-200',
+  MASTERING: 'bg-pink-50 border-pink-200',
+  CONSULTATION: 'bg-gray-50 border-gray-200',
 };
 
 export function CalendarContent() {
@@ -113,15 +124,12 @@ export function CalendarContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-accent" />
-            {t('calendar.title')}
-          </h1>
-        </div>
+        <h1 className="text-xl font-semibold tracking-tight">
+          {t('calendar.title')}
+        </h1>
         <button
           onClick={() => setShowBookingForm(true)}
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
+          className="flex items-center gap-2 bg-foreground text-background hover:opacity-90 rounded-lg px-4 py-2.5 text-[13px] font-medium transition-opacity"
         >
           <Plus className="w-4 h-4" />
           {t('calendar.bookSession')}
@@ -130,30 +138,36 @@ export function CalendarContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar Grid */}
-        <div className="lg:col-span-2 glass rounded-2xl p-6">
-          {/* Month navigation - arrows follow logical direction (ChevronRight=forward, ChevronLeft=back) */}
+        <div className="lg:col-span-2 bg-background border border-border rounded-xl p-5">
+          {/* Month navigation */}
           <div className="flex items-center justify-between mb-6">
-            <button onClick={nextMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
-              <ChevronRight className="w-5 h-5" />
+            <button
+              onClick={nextMonth}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
             </button>
             <div className="text-center">
-              <h2 className="text-lg font-semibold">{months[month]} {year}</h2>
+              <h2 className="text-[15px] font-semibold tracking-tight">{months[month]} {year}</h2>
               <button
                 onClick={() => setCurrentDate(new Date(2026, 1, 11))}
-                className="text-xs text-accent hover:text-accent-hover transition-colors mt-0.5"
+                className="text-[12px] text-gray-500 hover:text-foreground transition-colors mt-0.5"
               >
                 {t('calendar.today')}
               </button>
             </div>
-            <button onClick={prevMonth} className="p-2 rounded-xl hover:bg-surface-hover transition-colors">
-              <ChevronLeft className="w-5 h-5" />
+            <button
+              onClick={prevMonth}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           </div>
 
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 mb-2">
             {days.map((day) => (
-              <div key={day} className="text-center text-xs font-semibold text-muted py-2">
+              <div key={day} className="text-center text-[12px] font-medium text-gray-500 py-2">
                 {day}
               </div>
             ))}
@@ -176,33 +190,31 @@ export function CalendarContent() {
                   key={day}
                   onClick={() => setSelectedDate(dateStr)}
                   className={cn(
-                    'aspect-square rounded-xl p-1 cursor-pointer transition-all duration-200 flex flex-col',
-                    isToday && 'ring-2 ring-accent',
-                    isSelected && 'bg-accent/10',
-                    !isSelected && 'hover:bg-surface-hover'
+                    'aspect-square rounded-lg p-2 cursor-pointer transition-colors flex flex-col',
+                    isToday && 'ring-1 ring-gray-900',
+                    isSelected && 'bg-gray-50',
+                    !isSelected && 'hover:bg-gray-50'
                   )}
                 >
                   <span className={cn(
-                    'text-xs font-medium text-center',
-                    isToday ? 'text-accent font-bold' : 'text-foreground'
+                    'text-[13px] font-medium text-center',
+                    isToday ? 'font-semibold' : ''
                   )}>
                     {day}
                   </span>
-                  <div className="flex-1 flex flex-col gap-0.5 mt-0.5 overflow-hidden">
-                    {sessions.slice(0, 2).map((s) => (
+                  <div className="flex-1 flex items-center justify-center gap-1 mt-1">
+                    {sessions.slice(0, 3).map((s) => (
                       <div
                         key={s.id}
                         className={cn(
-                          'text-[9px] px-1 py-0.5 rounded truncate',
-                          sessionTypeColors[s.type]
+                          'w-1.5 h-1.5 rounded-full',
+                          sessionTypeDotColors[s.type]
                         )}
-                      >
-                        {s.title.substring(0, 15)}
-                      </div>
+                      />
                     ))}
-                    {sessions.length > 2 && (
-                      <span className="text-[9px] text-muted text-center">
-                        +{sessions.length - 2}
+                    {sessions.length > 3 && (
+                      <span className="text-[10px] text-gray-500 ml-0.5">
+                        +{sessions.length - 3}
                       </span>
                     )}
                   </div>
@@ -214,8 +226,8 @@ export function CalendarContent() {
 
         {/* Day Detail / Sessions List */}
         <div className="space-y-4">
-          <div className="glass rounded-2xl p-6">
-            <h3 className="font-semibold mb-4">
+          <div className="bg-background border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-[13px] mb-4">
               {selectedDate
                 ? new Date(selectedDate).toLocaleDateString(locale === 'he' ? 'he-IL' : 'en-US', {
                     weekday: 'long',
@@ -231,12 +243,12 @@ export function CalendarContent() {
                   <div
                     key={session.id}
                     className={cn(
-                      'rounded-xl p-4 border',
-                      sessionTypeColors[session.type]
+                      'rounded-lg p-3 border',
+                      sessionTypeCardColors[session.type]
                     )}
                   >
-                    <h4 className="font-medium text-sm">{session.title}</h4>
-                    <div className="flex items-center gap-3 mt-2 text-xs opacity-80">
+                    <h4 className="font-medium text-[13px]">{session.title}</h4>
+                    <div className="flex items-center gap-3 mt-2 text-[12px] text-gray-600">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatTime(session.startTime, locale)} - {formatTime(session.endTime, locale)}
@@ -244,12 +256,12 @@ export function CalendarContent() {
                       <span>{session.duration} {t('calendar.minutes')}</span>
                     </div>
                     {session.isProducerOnly ? (
-                      <p className="text-xs mt-2 flex items-center gap-1 opacity-70">
+                      <p className="text-[12px] mt-2 flex items-center gap-1 text-gray-600">
                         <Headphones className="w-3 h-3" />
                         {t('calendar.producerOnly')}
                       </p>
                     ) : (
-                      <p className="text-xs mt-2 flex items-center gap-1 opacity-70">
+                      <p className="text-[12px] mt-2 flex items-center gap-1 text-gray-600">
                         <User className="w-3 h-3" />
                         {session.clientName}
                       </p>
@@ -257,19 +269,19 @@ export function CalendarContent() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted text-center py-8">{t('calendar.noSessions')}</p>
+                <p className="text-[13px] text-gray-500 text-center py-8">{t('calendar.noSessions')}</p>
               )}
             </div>
           </div>
 
           {/* Quick Book */}
-          <div className="glass rounded-2xl p-6">
-            <h3 className="font-semibold mb-4">{t('calendar.bookSession')}</h3>
+          <div className="bg-background border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-[13px] mb-4">{t('calendar.bookSession')}</h3>
             <div className="space-y-3">
               <select
                 value={bookingType}
                 onChange={(e) => setBookingType(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
               >
                 <option value="">{t('calendar.sessionType')}</option>
                 <option value="SKETCH">{t('calendar.sessionTypes.SKETCH')}</option>
@@ -282,7 +294,7 @@ export function CalendarContent() {
               <select
                 value={bookingClientId}
                 onChange={(e) => setBookingClientId(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
               >
                 <option value="">{t('clients.title')}</option>
                 {clients.map((c) => (
@@ -293,7 +305,7 @@ export function CalendarContent() {
               <select
                 value={bookingSongId}
                 onChange={(e) => setBookingSongId(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
               >
                 <option value="">{t('projects.songs')}</option>
                 {allSongs.map((s) => (
@@ -305,7 +317,7 @@ export function CalendarContent() {
                 type="date"
                 value={bookingDate}
                 onChange={(e) => setBookingDate(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
               />
 
               <div className="flex gap-2">
@@ -313,12 +325,12 @@ export function CalendarContent() {
                   type="time"
                   value={bookingTime}
                   onChange={(e) => setBookingTime(e.target.value)}
-                  className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
                 />
                 <select
                   value={bookingDuration}
                   onChange={(e) => setBookingDuration(e.target.value)}
-                  className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-200 transition-shadow"
                 >
                   <option value="120">2 {t('calendar.hours')}</option>
                   <option value="180">3 {t('calendar.hours')}</option>
@@ -329,7 +341,7 @@ export function CalendarContent() {
               <button
                 onClick={handleBookSession}
                 disabled={!bookingType || !bookingDate}
-                className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl py-2.5 text-sm font-medium transition-colors"
+                className="w-full bg-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-background rounded-lg py-2.5 text-[13px] font-medium transition-opacity"
               >
                 {t('calendar.bookSession')}
               </button>

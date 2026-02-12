@@ -16,14 +16,11 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const mainNav = [
+const navItems = [
   { key: 'dashboard', href: '/', icon: LayoutDashboard },
   { key: 'clients', href: '/clients', icon: Users },
   { key: 'pipeline', href: '/projects', icon: GitBranch },
   { key: 'calendar', href: '/calendar', icon: Calendar },
-];
-
-const manageNav = [
   { key: 'payments', href: '/payments', icon: CreditCard },
   { key: 'files', href: '/files', icon: FolderOpen },
 ];
@@ -32,110 +29,74 @@ export function Sidebar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
 
-  const renderLink = (item: { key: string; href: string; icon: any }) => {
-    const isActive =
-      item.href === '/'
-        ? pathname === '/'
-        : pathname.startsWith(item.href.split('?')[0]);
-    const Icon = item.icon;
-
-    return (
-      <Link
-        key={item.key}
-        href={item.href as any}
-        className={cn(
-          'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 group',
-          isActive
-            ? 'bg-accent/15 text-accent font-medium glow-accent'
-            : 'text-muted hover:text-foreground hover:bg-surface-hover'
-        )}
-      >
-        <Icon className={cn(
-          'w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110',
-          isActive && 'scale-110'
-        )} />
-        <span>{t(item.key)}</span>
-        {isActive && (
-          <div className="ms-auto w-1.5 h-1.5 rounded-full bg-accent animate-pulse-glow" />
-        )}
-      </Link>
-    );
-  };
-
   return (
-    <aside className="w-64 h-screen bg-surface border-e border-border flex flex-col">
+    <aside className="w-56 h-screen bg-background border-e border-border flex flex-col">
       {/* Logo */}
-      <div className="p-5 border-b border-border">
-        <Link href={'/' as any} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-            <Headphones className="w-5 h-5 text-accent" />
+      <div className="px-4 py-5">
+        <Link href={'/' as any} className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
+            <Headphones className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold gradient-text">Studio Flow</h1>
-            <p className="text-[11px] text-muted">Producer Hub</p>
-          </div>
+          <span className="text-[15px] font-semibold tracking-tight">Studio Flow</span>
         </Link>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 p-3 space-y-5 overflow-y-auto">
-        <div className="space-y-1">
-          {mainNav.map(renderLink)}
-        </div>
+      {/* Navigation */}
+      <nav className="flex-1 px-2 space-y-0.5">
+        {navItems.map((item) => {
+          const isActive =
+            item.href === '/'
+              ? pathname === '/'
+              : pathname.startsWith(item.href);
+          const Icon = item.icon;
 
-        {/* Management section */}
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted/60 font-semibold px-4 mb-2">
-            {t('payments')} & {t('files')}
-          </p>
-          <div className="space-y-1">
-            {manageNav.map(renderLink)}
-          </div>
-        </div>
+          return (
+            <Link
+              key={item.key}
+              href={item.href as any}
+              className={cn(
+                'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-colors',
+                isActive
+                  ? 'bg-surface-hover text-foreground font-medium'
+                  : 'text-muted hover:text-foreground hover:bg-surface-hover'
+              )}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              <span>{t(item.key)}</span>
+            </Link>
+          );
+        })}
 
-        {/* Client Portal link */}
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted/60 font-semibold px-4 mb-2">
-            {t('portal')}
-          </p>
+        <div className="pt-3 mt-3 border-t border-border">
           <Link
             href={'/portal' as any}
             className={cn(
-              'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200',
+              'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-colors',
               pathname.startsWith('/portal')
-                ? 'bg-accent/15 text-accent font-medium'
+                ? 'bg-surface-hover text-foreground font-medium'
                 : 'text-muted hover:text-foreground hover:bg-surface-hover'
             )}
           >
-            <ExternalLink className="w-5 h-5 flex-shrink-0" />
+            <ExternalLink className="w-4 h-4 flex-shrink-0" />
             <span>{t('portal')}</span>
           </Link>
         </div>
       </nav>
 
-      {/* Bottom section */}
-      <div className="p-3 border-t border-border space-y-1">
+      {/* Bottom */}
+      <div className="px-2 py-3 border-t border-border">
         <Link
           href={'/settings' as any}
           className={cn(
-            'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200',
+            'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-colors',
             pathname.startsWith('/settings')
-              ? 'bg-accent/15 text-accent font-medium'
+              ? 'bg-surface-hover text-foreground font-medium'
               : 'text-muted hover:text-foreground hover:bg-surface-hover'
           )}
         >
-          <Settings className="w-5 h-5 flex-shrink-0" />
+          <Settings className="w-4 h-4 flex-shrink-0" />
           <span>{t('settings')}</span>
         </Link>
-        <div className="flex items-center gap-3 px-4 py-2.5">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-cyan-400 flex items-center justify-center text-xs font-bold text-white">
-            SF
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">Studio Flow</p>
-            <p className="text-[11px] text-muted truncate">Producer</p>
-          </div>
-        </div>
       </div>
     </aside>
   );

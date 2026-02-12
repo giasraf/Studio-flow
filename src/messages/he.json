@@ -17,6 +17,9 @@
     "back": "חזרה",
     "next": "הבא",
     "previous": "הקודם",
+    "name": "שם",
+    "email": "אימייל",
+    "phone": "טלפון",
     "viewAll": "הצג הכל",
     "noResults": "לא נמצאו תוצאות",
     "currency": "₪"
