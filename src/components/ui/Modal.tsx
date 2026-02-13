@@ -44,25 +44,25 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         if (e.target === overlayRef.current) onClose();
       }}
     >
-      <div className="absolute inset-0 bg-black/20 animate-fade-in" />
+      <div className="absolute inset-0 bg-black/60 animate-fade-in" />
 
       <div
         className={cn(
-          'relative w-full bg-background border border-border rounded-t-xl md:rounded-xl shadow-lg animate-slide-up overflow-hidden',
+          'relative w-full bg-surface-hover rounded-t-xl md:rounded-xl shadow-2xl animate-slide-up overflow-hidden',
           sizeClasses[size]
         )}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="text-[15px] font-semibold">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+          <h2 className="text-[16px] font-bold">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors text-muted hover:text-foreground"
+            className="p-1.5 rounded-full hover:bg-surface-active transition-colors text-muted hover:text-white"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
           {children}
         </div>
       </div>

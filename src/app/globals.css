@@ -4,20 +4,25 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-sans-hebrew: 'Heebo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
-  --color-surface: #f9fafb;
-  --color-surface-hover: #f3f4f6;
-  --color-border: #e5e7eb;
-  --color-border-light: #d1d5db;
-  --color-muted: #6b7280;
-  --color-accent: #5b5bd6;
-  --color-accent-hover: #4b4bc8;
-  --color-accent-light: rgba(91, 91, 214, 0.06);
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
-  --color-info: #2563eb;
+  /* Spotify Dark Theme */
+  --color-background: #121212;
+  --color-foreground: #ffffff;
+  --color-surface: #181818;
+  --color-surface-hover: #282828;
+  --color-surface-active: #333333;
+  --color-border: #282828;
+  --color-border-light: #3e3e3e;
+  --color-muted: #a7a7a7;
+  --color-muted-light: #6a6a6a;
+  --color-accent: #1DB954;
+  --color-accent-hover: #1ed760;
+  --color-accent-light: rgba(29, 185, 84, 0.1);
+  --color-success: #1DB954;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  --color-card: #181818;
+  --color-sidebar: #000000;
 }
 
 * {
@@ -51,7 +56,7 @@ input[type="number"]::-webkit-inner-spin-button {
 select {
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a7a7a7' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: left 12px center;
   padding-left: 28px !important;
@@ -70,8 +75,8 @@ select {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -79,27 +84,37 @@ select {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: hsla(0, 0%, 100%, 0.3);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-light);
+  background: hsla(0, 0%, 100%, 0.5);
 }
 
-/* Clean card */
+/* Spotify card */
 .glass {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  transition: border-color 0.15s ease;
+  background: var(--color-card);
+  border-radius: 8px;
+  transition: background 0.3s ease;
 }
 
 .glass:hover {
-  border-color: var(--color-border-light);
+  background: var(--color-surface-hover);
 }
 
-/* Compat stubs for removed effects */
+.sp-card {
+  background: var(--color-card);
+  border-radius: 8px;
+  padding: 16px;
+  transition: background 0.3s ease;
+}
+
+.sp-card:hover {
+  background: var(--color-surface-hover);
+}
+
+/* Compat stubs */
 .glow-accent, .glow-success, .glow-warning, .glow-danger {}
 .gradient-text { color: var(--color-foreground); }
 .animate-pulse-glow {}

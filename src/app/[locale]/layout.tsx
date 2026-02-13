@@ -5,7 +5,6 @@ import { locales, localeDirection } from '@/i18n/config';
 import type { Locale } from '@/i18n/config';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
-import { Header } from '@/components/layout/Header';
 import { ToastProvider } from '@/components/ui/Toast';
 import '@/app/globals.css';
 
@@ -35,32 +34,26 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#121212" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="antialiased bg-surface">
+      <body className="antialiased bg-background">
         <NextIntlClientProvider messages={messages}>
           <ToastProvider>
             <div className="flex h-dvh overflow-hidden">
-              {/* Desktop Sidebar */}
               <div className="hidden md:block">
                 <Sidebar />
               </div>
-
-              {/* Main Content */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                <Header />
-                <main className="flex-1 overflow-y-auto p-5 md:p-8 pb-20 md:pb-8 scroll-smooth">
-                  <div className="max-w-5xl">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth">
+                  <div className="max-w-6xl">
                     {children}
                   </div>
                 </main>
               </div>
-
-              {/* Mobile Bottom Nav */}
               <div className="md:hidden">
                 <MobileNav />
               </div>

@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Music, User, Clock } from 'lucide-react';
 import { stageLabels } from '@/lib/mock-data';
 import { useSongs } from '@/hooks/useStore';
-import { getStageColor, formatDate, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import type { SongStage } from '@/lib/mock-data';
 
 const stageOrder: SongStage[] = [
@@ -22,16 +22,16 @@ export function ActiveSongs() {
     .sort((a, b) => stageOrder.indexOf(b.stage) - stageOrder.indexOf(a.stage));
 
   return (
-    <div className="glass rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
+    <div className="bg-card rounded-lg p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-[16px] font-bold flex items-center gap-2">
           <Music className="w-5 h-5 text-accent" />
           {t('dashboard.activeSongs')}
         </h2>
-        <span className="text-sm text-muted">{activeSongs.length} {t('common.active')}</span>
+        <span className="text-[13px] text-muted">{activeSongs.length} {t('common.active')}</span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {activeSongs.map((song) => {
           const stageLabel = stageLabels[song.stage];
           const progress = ((stageOrder.indexOf(song.stage) + 1) / stageOrder.length) * 100;
@@ -39,31 +39,30 @@ export function ActiveSongs() {
           return (
             <div
               key={song.id}
-              className="bg-background/50 rounded-xl p-4 hover:bg-surface-hover transition-colors cursor-pointer"
+              className="rounded-lg p-4 hover:bg-surface-hover transition-colors cursor-pointer"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-medium text-sm">{song.title}</h3>
-                  <p className="text-xs text-muted flex items-center gap-1 mt-1">
+                  <h3 className="font-semibold text-[14px]">{song.title}</h3>
+                  <p className="text-[12px] text-muted flex items-center gap-1 mt-1">
                     <User className="w-3 h-3" />
                     {song.clientName}
                   </p>
                 </div>
-                <span className={cn('text-xs px-2 py-1 rounded-lg font-medium', getStageColor(song.stage))}>
+                <span className="text-[12px] px-2.5 py-1 rounded-full bg-surface-hover text-muted font-medium">
                   {locale === 'he' ? stageLabel.he : stageLabel.en}
                 </span>
               </div>
 
-              {/* Progress bar */}
               <div className="mt-3">
-                <div className="flex items-center justify-between text-xs text-muted mb-1">
+                <div className="flex items-center justify-between text-[11px] text-muted mb-1.5">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {song.sessionCount} {t('projects.sessions')}
                   </span>
                   <span>{Math.round(progress)}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-surface-active rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full transition-all duration-500"
                     style={{ width: `${progress}%` }}
